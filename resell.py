@@ -785,11 +785,11 @@ def show_prices(message):
 
 💰 𝗞𝗘𝗬 𝗣𝗥𝗜𝗖𝗘𝗦:
 • 2 Hours: 20 Credits
-• 1 Day: 200 Credits
-• 3 Days: 320 Credits
-• 7 Days: 600 Credits
-• 30 Days: 1,100 Credits
-• 60 Days: 1,800 Credits
+• 1 Day: 80 Credits
+• 3 Days: 170 Credits
+• 7 Days: 300 Credits
+• 30 Days: 600 Credits
+• 60 Days: 820 Credits
 
 📌 𝗠𝗜𝗡𝗜𝗠𝗨𝗠 𝗕𝗨𝗬: 2,000₹ (10,000 Credits)"""
     bot.reply_to(message, price_text)
