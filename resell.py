@@ -17,7 +17,7 @@ import pymongo
 # MongoDB configuration
 uri = "mongodb+srv://uthayakrishna67:Uthaya$0@cluster0.mlxuz.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
 client = pymongo.MongoClient(uri)
-db = client['telegram_bot']
+db = client['telegram_botcheck']
 
 # Collections
 resellers = db['resellers']
@@ -388,16 +388,22 @@ def add_reseller(message):
     if str(message.from_user.id) not in ADMIN_IDS:
         bot.reply_to(message, "⛔️ Only administrators can add resellers.")
         return
-    
+
     try:
         args = message.text.split()
         if len(args) != 3:
-            bot.reply_to(message, "📝 Usage: /addreseller <telegram_id> <initial_balance>")
+            bot.reply_to(message, "📝 Usage: /addreseller <telegram_id> <balance>")
             return
 
         telegram_id = args[1]
         balance = int(args[2])
-        
+
+        # Check if reseller already exists
+        existing_reseller = db['resellers'].find_one({"telegram_id": telegram_id})
+        if existing_reseller:
+            bot.reply_to(message, f"⛔️ Reseller with ID {telegram_id} already exists.")
+            return
+
         # Try to get the username from the Telegram API
         try:
             user_info = bot.get_chat(telegram_id)
@@ -408,20 +414,21 @@ def add_reseller(message):
         # Insert the new reseller with the username
         resellers.insert_one({
             "telegram_id": telegram_id,
-            "username": username,  # Store the username
+            "username": username,
             "balance": balance,
             "added_by": str(message.from_user.id),
             "created_at": datetime.now(IST)
         })
 
         bot.reply_to(message, f"""
-✅ Reseller Added Successfully
-👤 Telegram ID: {telegram_id}
-👤 Username: @{username}
-💰 Initial Balance: {balance}
-""")
+        ✅ Reseller Added Successfully
+        👤 Telegram ID: {telegram_id}
+        👤 Username: @{username}
+        💰 Initial Balance: {balance}
+        """)
     except Exception as e:
         bot.reply_to(message, f"❌ Error: {str(e)}")
+
 
 
 @bot.message_handler(commands=['balance'])
