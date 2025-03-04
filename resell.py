@@ -62,11 +62,11 @@ admin_owner = "7418099890"
 # Price configuration
 PRICES = {
     "2h": 20,
-    "1d": 200,
-    "3d": 320, 
-    "7d": 600,
-    "30d": 1100,
-    "60d": 1800
+    "1d": 80,
+    "3d": 170, 
+    "7d": 300,
+    "30d": 600,
+    "60d": 820
 }
 
 IST = pytz.timezone('Asia/Kolkata')
@@ -777,10 +777,10 @@ def broadcast_message(message):
 def show_prices(message):
     price_text = """
 💎 𝗣𝗔𝗡𝗘𝗟 𝗣𝗥𝗜𝗖𝗘𝗦:
-• ₹2,000 ➜ 10000 Credits
-• ₹3,000 ➜ 16,000 Credits
-• ₹5,000 ➜ 27,000 Credits
-• ₹10,000 ➜ 60,000 Credits
+• ₹2,000 ➜ 5000 Credits
+• ₹3,000 ➜ 8500 Credits
+• ₹5,000 ➜ 14000 Credits
+• ₹10,000 ➜ 30000 Credits
 
 
 💰 𝗞𝗘𝗬 𝗣𝗥𝗜𝗖𝗘𝗦:
