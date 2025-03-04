@@ -62,11 +62,11 @@ admin_owner = "7418099890"
 # Price configuration
 PRICES = {
     "2h": 20,
-    "1d": 80,
-    "3d": 170, 
-    "7d": 300,
-    "30d": 600,
-    "60d": 820
+    "1d": 200,
+    "3d": 320, 
+    "7d": 600,
+    "30d": 1100,
+    "60d": 1800
 }
 
 IST = pytz.timezone('Asia/Kolkata')
@@ -398,8 +398,17 @@ def add_reseller(message):
         telegram_id = args[1]
         balance = int(args[2])
         
+        # Try to get the username from the Telegram API
+        try:
+            user_info = bot.get_chat(telegram_id)
+            username = user_info.username or user_info.first_name
+        except Exception as e:
+            username = "Unknown"  # Fallback if username cannot be retrieved
+
+        # Insert the new reseller with the username
         resellers.insert_one({
             "telegram_id": telegram_id,
+            "username": username,  # Store the username
             "balance": balance,
             "added_by": str(message.from_user.id),
             "created_at": datetime.now(IST)
@@ -408,6 +417,7 @@ def add_reseller(message):
         bot.reply_to(message, f"""
 ✅ Reseller Added Successfully
 👤 Telegram ID: {telegram_id}
+👤 Username: @{username}
 💰 Initial Balance: {balance}
 """)
     except Exception as e:
@@ -562,38 +572,28 @@ def list_all_resellers(message):
         return
 
     try:
-        # Fetch all resellers with their details
-        resellers = execute_db_query("""
-            SELECT r.telegram_id, r.username, r.balance, r.created_at 
-            FROM resellers r
-            ORDER BY r.created_at DESC
-        """)
-
-        if not resellers:
+        # Fetch all resellers sorted by creation date
+        resellers_list = resellers.find().sort("created_at", -1)
+        
+        if not resellers_list:
             bot.reply_to(message, "📝 No resellers found")
             return
 
-        # Format resellers list
-        reseller_list = []
-        for telegram_id, username, balance, created_at in resellers:
-            # Try to get current username from Telegram API
-            try:
-                user_info = bot.get_chat(telegram_id)
-                display_username = user_info.username or user_info.first_name
-            except:
-                # Fallback to stored username if Telegram API fails
-                display_username = username if username else f"ID:{telegram_id}"
-
+        reseller_info_list = []
+        for reseller in resellers_list:
+            # Use the stored username or fallback to Telegram ID
+            username = reseller.get("username", f"ID:{reseller['telegram_id']}")
+            
             reseller_info = f"""
-👤 Username: @{display_username}
-🆔 Telegram ID: {telegram_id}
-💰 Balance: {balance:,} Credits
-📅 Added On: {created_at.astimezone(IST).strftime('%Y-%m-%d %H:%M:%S')} IST
+👤 Username: @{username}
+🆔 Telegram ID: {reseller['telegram_id']}
+💰 Balance: {reseller['balance']:,} Credits
+📅 Added On: {reseller['created_at'].astimezone(IST).strftime('%Y-%m-%d %H:%M:%S')} IST
 """
-            reseller_list.append(reseller_info)
+            reseller_info_list.append(reseller_info)
 
-        # Join all reseller info with a separator
-        response = "📊 All Resellers:\n" + "\n━━━━━━━━━━━━━━━\n".join(reseller_list)
+        # Combine all reseller info into a single response
+        response = "📊 All Resellers:\n" + "\n━━━━━━━━━━━━━━━\n".join(reseller_info_list)
         bot.reply_to(message, response)
 
     except Exception as e:
@@ -770,21 +770,21 @@ def broadcast_message(message):
 def show_prices(message):
     price_text = """
 💎 𝗣𝗔𝗡𝗘𝗟 𝗣𝗥𝗜𝗖𝗘𝗦:
-• ₹2,000 ➜ 5000 Balance
-• ₹3,000 ➜ 9000 Balance
-• ₹5,000 ➜ 15000 Balance
-• ₹10,000 ➜ 32000 Balance
+• ₹2,000 ➜ 10000 Credits
+• ₹3,000 ➜ 16,000 Credits
+• ₹5,000 ➜ 27,000 Credits
+• ₹10,000 ➜ 60,000 Credits
 
 
 💰 𝗞𝗘𝗬 𝗣𝗥𝗜𝗖𝗘𝗦:
-• 2 Hours: 20 Balance
-• 1 Day: 80 Balance
-• 3 Days: 170 Balance
-• 7 Days: 300 Balance
-• 30 Days: 600 Balance
-• 60 Days: 820 Balance
+• 2 Hours: 20 Credits
+• 1 Day: 200 Credits
+• 3 Days: 320 Credits
+• 7 Days: 600 Credits
+• 30 Days: 1,100 Credits
+• 60 Days: 1,800 Credits
 
-📌 𝗠𝗜𝗡𝗜𝗠𝗨𝗠 𝗕𝗨𝗬: 2,000₹ (5000 Balance)"""
+📌 𝗠𝗜𝗡𝗜𝗠𝗨𝗠 𝗕𝗨𝗬: 2,000₹ (10,000 Credits)"""
     bot.reply_to(message, price_text)
 
 def run_bot():
