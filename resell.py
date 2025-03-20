@@ -791,7 +791,7 @@ def show_prices(message):
 • 30 Days: 600 Credits
 • 60 Days: 820 Credits
 
-📌 𝗠𝗜𝗡𝗜𝗠𝗨𝗠 𝗕𝗨𝗬: 2,000₹ (10,000 Credits)"""
+📌 𝗠𝗜𝗡𝗜𝗠𝗨𝗠 𝗕𝗨𝗬: 2,000₹ (5,000 Credits)"""
     bot.reply_to(message, price_text)
 
 def run_bot():
